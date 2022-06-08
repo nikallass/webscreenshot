@@ -99,7 +99,8 @@ conn_grp.add_argument('-P', '--proxy', help = '<PROXY> (optional): specify a pro
 conn_grp.add_argument('-A', '--proxy-auth', help = '<PROXY_AUTH> (optional): provides authentication information for the proxy. Ex: -A user:password')
 conn_grp.add_argument('-T', '--proxy-type', help = '<PROXY_TYPE> (optional): specifies the proxy type, "http" (default), "none" (disable completely), or "socks5". Ex: -T socks')
 conn_grp.add_argument('-t', '--timeout', help = '<TIMEOUT> (optional): renderer execution timeout in seconds (default 30 sec)', default = 30)
-conn_grp.add_argument('--chromium-timeout', help = '<CHROMIUM_TIMEOUT> (optional): cromium renderer page load timeout in seconds (default 5 sec)', default = 5)
+conn_grp.add_argument('--chromium-timeout', help = '<CHROMIUM_TIMEOUT> (optional): cromium renderer own timeout (page load) in seconds (default 10 sec)', default = 10)
+conn_grp.add_argument('--virtual-time-budget', help = '<CHROMIUM_PAUSE_BEFORE_SCREENSHOT> (optional): cromium renderer pause before screenshot after page loaded in seconds (default 5 seconds)', default = 5)
 
 # renderer binaries, hoping to find it in a $PATH directory
 ## Be free to change them to your own full-path location 
@@ -212,7 +213,7 @@ def shell_exec(url, command, options, context):
             now = datetime.datetime.now()
             if (now - start).seconds > timeout:
                 logger_url.debug("Shell command PID %s reached the timeout, killing it now" % p.pid)
-                logger_url.error("Screenshot somehow failed\n")
+                logger_url.error("\u001b[31mScreenshot somehow failed\u001b[0m")
                 
                 close_subfds(p)
                 
@@ -237,13 +238,13 @@ def shell_exec(url, command, options, context):
             else:
                 # Phantomjs general error
                 logger_url.error("Shell command PID %s returned an abnormal error code: '%s'" % (p.pid,retval))
-                logger_url.error("Screenshot somehow failed\n")
+                logger_url.error("\u001b[31mScreenshot somehow failed\u001b[0m")
                     
             return SHELL_EXECUTION_ERROR
         
         else:
             logger_url.debug("Shell command PID %s ended normally" % p.pid)
-            logger_url.info("Screenshot OK\n")
+            logger_url.info("Screenshot OK")
             return SHELL_EXECUTION_OK
     
     except OSError as e:
@@ -366,19 +367,19 @@ def parse_targets(options):
                 final_uri_http_port = int(matches['port']) if 'port' in matches.keys() else 80
                 final_uri_http = '%s://%s:%s%s' % ('http', host, final_uri_http_port, res)
                 target_list.append(final_uri_http)
-                logger_gen.info("'%s' has been formatted as '%s' with supplied overriding options" % (line, final_uri_http))
+                logger_gen.debug("'%s' has been formatted as '%s' with supplied overriding options" % (line, final_uri_http))
                 
                 
                 final_uri_https_port = int(matches['port']) if 'port' in matches.keys() else 443
                 final_uri_https = '%s://%s:%s%s' % ('https', host, final_uri_https_port, res)
                 target_list.append(final_uri_https)
-                logger_gen.info("'%s' has been formatted as '%s' with supplied overriding options" % (line, final_uri_https))
+                logger_gen.debug("'%s' has been formatted as '%s' with supplied overriding options" % (line, final_uri_https))
             
             else:
                 final_uri = '%s://%s:%s%s' % (protocol, host, port, res)
                 target_list.append(final_uri)
 
-                logger_gen.info("'%s' has been formatted as '%s' with supplied overriding options" % (line, final_uri))
+                logger_gen.debug("'%s' has been formatted as '%s' with supplied overriding options" % (line, final_uri))
     
     return target_list
 
@@ -527,6 +528,7 @@ def craft_cmd(url_and_options):
                             '--reduce-security-for-testing',
                             '--no-sandbox',
                             '--timeout=%s' % str(int(options.chromium_timeout) * 1000),
+                            '--virtual-time-budget=%s' % str(int(options.virtual_time_budget) * 1000),
                             '--headless',
                             '--disable-gpu',
                             '--hide-scrollbars',
