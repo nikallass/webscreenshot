@@ -99,6 +99,7 @@ conn_grp.add_argument('-P', '--proxy', help = '<PROXY> (optional): specify a pro
 conn_grp.add_argument('-A', '--proxy-auth', help = '<PROXY_AUTH> (optional): provides authentication information for the proxy. Ex: -A user:password')
 conn_grp.add_argument('-T', '--proxy-type', help = '<PROXY_TYPE> (optional): specifies the proxy type, "http" (default), "none" (disable completely), or "socks5". Ex: -T socks')
 conn_grp.add_argument('-t', '--timeout', help = '<TIMEOUT> (optional): renderer execution timeout in seconds (default 30 sec)', default = 30)
+conn_grp.add_argument('--chromium-timeout', help = '<CHROMIUM_TIMEOUT> (optional): cromium renderer page load timeout in seconds (default 5 sec)', default = 5)
 
 # renderer binaries, hoping to find it in a $PATH directory
 ## Be free to change them to your own full-path location 
@@ -525,11 +526,12 @@ def craft_cmd(url_and_options):
                             '--ignore-urlfetcher-cert-requests',
                             '--reduce-security-for-testing',
                             '--no-sandbox',
+                            '--timeout=%s' % str(int(options.chromium_timeout) * 1000),
                             '--headless',
                             '--disable-gpu',
                             '--hide-scrollbars',
                             '--incognito' if (options.renderer == 'chrome') or (options.renderer == 'chromium') else '-inprivate',
-                            '-screenshot=%s' % craft_arg(output_filename),
+                            '--screenshot=%s' % craft_arg(output_filename),
                             '--window-size=%s' % options.window_size,
                             '%s' % craft_arg(url) ]
         cmd_parameters.append('--proxy-server=%s' % options.proxy) if options.proxy != None else None
