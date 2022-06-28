@@ -49,7 +49,7 @@ else:
     izip = zip
 
 # Script version
-VERSION = '2.94'
+VERSION = '2.95'
 
 # Options definition
 parser = argparse.ArgumentParser()
@@ -308,13 +308,7 @@ def entry_format_validator(line):
         if validator:
             return extract_all_matched_named_groups(regex, validator)
 
-def parse_targets(options):
-    """
-        Parse list and convert each target to valid URI with port(protocol://foobar:port) 
-    """
-    
-    target_list = []
-    
+def readfile(options):
     if options.input_file != None:
         with open(options.input_file,'rb') as fd_input:
             try:
@@ -325,6 +319,15 @@ def parse_targets(options):
                 sys.exit(1)
     else:
         lines = [options.URL]
+    return lines
+
+def parse_targets(options, lines):
+    """
+        Parse list and convert each target to valid URI with port(protocol://foobar:port) 
+    """
+    
+    target_list = []
+    
         
     for index, line in enumerate(lines, start=1):
         matches = entry_format_validator(line)
@@ -616,7 +619,9 @@ def main():
         logger_gen.setLevel(options.log_level)
     except :
         parser.error("Please specify a valid log level")
-        
+    
+    inp_urls_list = []
+
     if (options.input_file == None) and (options.URL == None):
         parser.error('Please specify a valid input file or a valid URL')
     
@@ -639,10 +644,17 @@ def main():
     if options.crop != None:
         if len(options.crop.split(',')) != 4:
             parser.error('Please specify a valid crop rectangle')
+    # TODO get URLS from stdin
+    #for line in sys.stdin:
+    #    inp_urls_list.append(line)
+
+    #print('got it' if sys.stdin == '' else inp_urls_list)
+    #exit()
+
+    inp_urls_list = readfile(options)
+    parsed_normalized_urls = parse_targets(options, inp_urls_list)
     
-    url_list = parse_targets(options)
-    
-    take_screenshot(url_list, options)
+    take_screenshot(parsed_normalized_urls, options)
     
     return None
 

@@ -36,13 +36,14 @@ domain_or_ip(/resource)
 
 ### Options
 ```
-webscreenshot.py version 2.94
+webscreenshot.py version 2.95
 
 usage: webscreenshot.py [-h] [-i INPUT_FILE] [-o OUTPUT_DIRECTORY] [-w WORKERS] [-v] [--no-error-file] [-z SINGLE_OUTPUT_FILE] [-p PORT] [-s] [-m]
                         [-r {phantomjs,chrome,chromium,edgechromium,firefox}] [--renderer-binary RENDERER_BINARY] [--no-xserver] [--window-size WINDOW_SIZE]
                         [-f {pdf,png,jpg,jpeg,bmp,ppm}] [-q [0-100]] [--ajax-max-timeouts AJAX_MAX_TIMEOUTS] [--crop CROP] [--custom-js CUSTOM_JS] [-l]
                         [--label-size LABEL_SIZE] [--label-bg-color LABEL_BG_COLOR] [--imagemagick-binary IMAGEMAGICK_BINARY] [-c COOKIE] [-a HEADER]
-                        [-u HTTP_USERNAME] [-b HTTP_PASSWORD] [-P PROXY] [-A PROXY_AUTH] [-T PROXY_TYPE] [-t TIMEOUT]
+                        [-u HTTP_USERNAME] [-b HTTP_PASSWORD] [-P PROXY] [-A PROXY_AUTH] [-T PROXY_TYPE] [-t TIMEOUT] [--chromium-timeout CHROMIUM_TIMEOUT]
+                        [--virtual-time-budget VIRTUAL_TIME_BUDGET]
                         [URL]
 
 optional arguments:
@@ -79,14 +80,13 @@ Screenshot image parameters:
   --window-size WINDOW_SIZE
                         <WINDOW_SIZE> (optional): width and height of the screen capture (default '1200,800')
   -f {pdf,png,jpg,jpeg,bmp,ppm}, --format {pdf,png,jpg,jpeg,bmp,ppm}
-                        <FORMAT> (optional, phantomjs only): specify an output image file format, "pdf", "png", "jpg", "jpeg", "bmp" or "ppm" (default
-                        'png')
+                        <FORMAT> (optional, phantomjs only): specify an output image file format, "pdf", "png", "jpg", "jpeg", "bmp" or "ppm" (default 'png')
   -q [0-100], --quality [0-100]
                         <QUALITY> (optional, phantomjs only): specify the output image quality, an integer between 0 and 100 (default 75)
   --ajax-max-timeouts AJAX_MAX_TIMEOUTS
                         <AJAX_MAX_TIMEOUTS> (optional, phantomjs only): per AJAX request, and max URL timeout in milliseconds (default '1400,1800')
-  --crop CROP           <CROP> (optional, phantomjs only): rectangle <t,l,w,h> to crop the screen capture to (default to WINDOW_SIZE: '0,0,w,h'), only
-                        numbers, w(idth) and h(eight). Ex. "10,20,w,h"
+  --crop CROP           <CROP> (optional, phantomjs only): rectangle <t,l,w,h> to crop the screen capture to (default to WINDOW_SIZE: '0,0,w,h'), only numbers,
+                        w(idth) and h(eight). Ex. "10,20,w,h"
   --custom-js CUSTOM_JS
                         <CUSTOM_JS> (optional, phantomjs only): path of a file containing JavaScript code to be executed before taking the screenshot. Ex:
                         js.txt
@@ -119,6 +119,10 @@ Connection parameters:
                         <PROXY_TYPE> (optional): specifies the proxy type, "http" (default), "none" (disable completely), or "socks5". Ex: -T socks
   -t TIMEOUT, --timeout TIMEOUT
                         <TIMEOUT> (optional): renderer execution timeout in seconds (default 30 sec)
+  --chromium-timeout CHROMIUM_TIMEOUT
+                        <CHROMIUM_TIMEOUT> (optional): cromium renderer own timeout (page load) in seconds (default 10 sec)
+  --virtual-time-budget VIRTUAL_TIME_BUDGET
+                        <CHROMIUM_PAUSE_BEFORE_SCREENSHOT> (optional): cromium renderer pause before screenshot after page loaded in seconds (default 5 seconds)
 ```
 
 ### Examples
@@ -228,6 +232,7 @@ Requirements
 
 Changelog
 ---------
+* version 2.95 - 06/10/2022: Adding chromium screenshots flags support (chromium_timeout, virtual_time_budget)
 * version 2.94 - 08/23/2020: Added custom-js and single output file options
 * version 2.93 - 08/16/2020: Added support of Python 3.8 and Microsoft Edge Chromium ; file output for failed webscreenshots ; filename length limitation for long URL 
 * version 2.92 - 06/21/2020: no_xserver option autodetection
@@ -266,4 +271,5 @@ If not, see http://www.gnu.org/licenses/.
 
 Contact
 -------
-* Thomas Debize < tdebize at mail d0t com >
+* Thomas Debize < tdebize at mail d0t com > - original repo maintainer
+* Nikita Medvedev < nikallass at yandex d0t ru> - this repo maintainer
